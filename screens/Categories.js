@@ -1,68 +1,59 @@
-import { Text, View , ScrollView, TouchableOpacity} from 'react-native';
-import React, {Component, useState} from 'react';
-import COLORS from '../constants/colors';
-import CheckBox from 'react-native-check-box';
-import { Title } from 'react-native-paper';
-
-const Data=require('../components/Data.json')
-
-
-class Categories extends Component {
- 
- 
-  constructor(props){
-    super(props)
-    this.state ={
-      data:Data
-    }
-
-   }
-   onchecked(id){
-    const data = this.state.data
-    const index = data.findIndex(x => x.id === id);
-    data[index].checked = !data[index].checked
-    this.setState(data)
-   };
-
-   getSelecteddata(){
-    var keys = this.state.data.map((t)=>{t.key})
-    var checks = this.state.datamap((t)=> t.checked)
-    let Selected =[]
-    for(let i=0 ; i (checks.length);i++){
-      if(checks[i]==true){
-        Selected.push(keys[i])
-      }
-    }
-    alert(Selected)
-   }
+import { Text, View, ScrollView, TouchableOpacity } from "react-native";
+import React, { Component, useState } from "react";
+import COLORS from "../constants/colors";
+import CheckBox from "react-native-check-box";
+import { Title } from "react-native-paper";
+import Data from "../components/Data.json";
 
 
-   renderdata(){ 
-   return this.state.data.map((item,key) =>{ 
+
+// Ui Component for checkboxes and the name of categories
+const RenderItem = ({ category, handleChecked }) => {
+  const [isChecked, setIsChecked] = useState(false);
   return (
-    <ScrollView horizontal={true}>
-      
-       < TouchableOpacity style={{flexDirection:"row", alignItems:'center',}}
-       key = {key} onPress={()=> (this.onchecked(item.id))}>
-        
-          
-              <CheckBox value={item.checked} onvalueChange = {()=>{this.onchecked(item.id)}} />
-             
-             
-          <Text style={{fontWeight:"bold"}}>{item.key}</Text>
-        
-          {this.renderdata()}
-     </TouchableOpacity>
+    <TouchableOpacity
+      style={{
+        flexDirection: "row",
+        gap: 5,
+        padding: 5,
+      }}
+      onPress={() => [handleChecked(category.id), setIsChecked(!isChecked)]}
+    >
+      <CheckBox
+        isChecked={isChecked}
+        onClick={() => [handleChecked(category.id), setIsChecked(!isChecked)]}
+      />
+      <Text>{category.key}</Text>
+    </TouchableOpacity>
+  );
+};
+
+const Categories = () => {
+  const [ selectedCategories, setSelectedCategories ] = useState([]);
+
+  // Multiselect functionality with adding new categories and removing existing categories
+  const handleChecked = (id) => {
+    const index = selectedCategories.indexOf(id)
+       selectedCategories.includes(id) === true ? (index > -1 ? 
+          setSelectedCategories(current => current.filter((item) => item !== id))
+          : null) 
+          : setSelectedCategories(current => [...current, id])      
+ };
+
+//  To see which categories are added
+ console.log("selectedCategories", selectedCategories)
+  return (
+    <ScrollView
+      contentContainerStyle={{
+        flexGrow: 1,
+        paddingBottom: "20%",
+      }}
+    >
+      {Data.map((category, index) => {
+        return <RenderItem {...{ category, handleChecked }} key={index} />;
+      })}
     </ScrollView>
-  )
-     } )
-   
-}
-render(){
-  <Title>choose </Title>
-
-}
-}
-
+  );
+};
 
 export default Categories;
